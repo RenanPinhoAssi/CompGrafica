@@ -1,4 +1,5 @@
 #include "objectos2d.h"
+#include "math.h"
 
 ///Clipping of objets
 
@@ -125,6 +126,88 @@ std::vector<Matrix3d> BaseObject::line_cohen_sutherland(int i){
     }
 return temp;
 }
-
-
 */
+std::vector<Matrix3d> BaseObject::line_clipp_Lian_Barsky(Matrix3d pos1 , Matrix3d pos2)
+{
+
+    std::vector<Matrix3d> arg_return;
+    double x1,x2,y1,y2,xmin,xmax,ymin,ymax, u1, u2, dx, dy;
+    double p[4], q[4],r[4] ;
+
+    x1 = pos1.get_X();
+    y1 = pos1.get_Y();
+    x2 = pos2.get_X();
+    y2 = pos2.get_Y();
+
+    xmin  = -1;
+    xmax = 1;
+    ymin = -1;
+    ymax = 1;
+
+    dx = x2-x1;
+    dy = y2 -y1;
+
+    q[0] = -dx;
+    q[1] =  dx;
+    q[2] = -dy;
+    q[3] =  dy;
+
+    p[0] = x1- xmin;
+    p[1] = xmax - x1;
+    p[2]= y1 - ymin;
+    p[3] = ymax - y1;
+
+
+    r[0] = q[0]/p[0];
+    r[1] = q[1]/p[1];
+    r[2] = q[2]/p[2];
+    r[3] = q[3]/p[3];
+
+    // Chek if lines are completly outside or inside
+    for(int i=0; i < 4 ;i++)
+    {
+        if(p[i]!=0)
+        {
+            r[i]=q[i]/p[i];
+        }
+        else if(p[i]==0 && q[i] < 0) // if true line completly outside window
+        {
+            return arg_return;
+        }
+        else if(p[i]==0 && q[i] >= 0) // If true line completly inside window
+        {
+            arg_return.push_back(pos1);
+            arg_return.push_back(pos2);
+            return arg_return;
+        }
+    }
+    if (p[0] < 0 )
+    {
+        u1 = max(p[0],p[2]);
+    }
+    else{
+        u1 = min(p[0], p[2]);
+        u1 = min(1.0,u1);
+    }
+
+    if (p[1] < 0 )
+    {
+        u2 = max(p[1],p[3]);
+    }
+    else{
+        u2 = min(p[1], p[3]);
+        u2 = min(1.0,u2);
+    }
+
+    if (u1 < u2){
+        arg_return.push_back(Matrix3d(x1+u1*dx,y1+u1*dy));
+        arg_return.push_back(Matrix3d(x2+u2*dx,y1+u2*dy));
+        return arg_return;
+    }
+    else
+    {
+        return arg_return;
+    }
+}
+
+
