@@ -74,6 +74,9 @@ public:
     void rotAround_GeoCenter( double phi);
     void rotAround_Point( Matrix3d point, double phi);
 
+    // Clipping Methods
+    std::vector<Matrix3d> line_clipp_Lian_Barsky(Matrix3d pos1 , Matrix3d pos2);
+
 
 };
 

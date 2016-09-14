@@ -824,10 +824,16 @@ void draw_all(GtkWidget *widget, DisplayFile *pointer )
         }
         else
         {}
+
+        cairo_set_source_rgb(cr,1,0,0);
+        cairo_rectangle(cr, 10,10,580,580);
         // Drawing in the viewport area
         gtk_widget_queue_draw_area (widget, pointer->x_vp_min, pointer->y_vp_min,pointer->x_vp_max , pointer->y_vp_max);
     }
-    //gtk_widget_queue_draw_area (widget,pointer->pos_window.get_X(), pointer->pos_window.get_Y(), 600, 600);
+    //Draw red rectangle to show viewport
+    cairo_set_source_rgb(cr,1,0,0);
+    cairo_rectangle(cr, 10,10,580,580);
+    gtk_widget_queue_draw_area (widget, pointer->x_vp_min, pointer->y_vp_min,pointer->x_vp_max , pointer->y_vp_max);
     cairo_destroy (cr);
 }
 
