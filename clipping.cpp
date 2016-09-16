@@ -31,23 +31,23 @@ void BaseObject::objClipp_Line()
 }
 
 
-
+*/
 ///Clipping Methods
 
-unsigned int BaseObject::pointLoc(int i)
+unsigned int BaseObject::pointLoc(Matrix3d arg_matrix)
 {
     unsigned int loc = 0;
     // Check in which regin of the window x lies
-    if( 1 < this->p_w_norm[i].get_X())
+    if( 1 < arg_matrix.get_X())
         loc = 2;
-    else if (-1 > this->p_w_norm[i].get_X() )
+    else if (-1 > arg_matrix.get_X() )
         loc = 1;
     else
         loc = 0;
     // Check in which regein of the window y lies, use or operator
-    if( 1 < this->p_w_norm[i].get_Y())
+    if( 1 < arg_matrix.get_Y())
         loc |= 8;
-    else if (-1 > this->p_w_norm[i].get_Y() )
+    else if (-1 > arg_matrix.get_Y() )
         loc |= 8;
     else
         loc |= 0;
@@ -57,10 +57,10 @@ unsigned int BaseObject::pointLoc(int i)
 
 std::vector<Matrix3d> BaseObject::line_cohen_sutherland(int i){
 
-    unsigned int loc_0 = 0, loc_01 = 0;
+    unsigned int loc_1 = 0, loc_2 = 0;
 
-    loc_1 = this->pointLoc(i);
-    loc_2 = this->pointLoc(i+1);
+    loc_1 = this->pointLoc(this->p_w_norm[i]);
+    loc_2 = this->pointLoc(this->p_w_norm[i+1]);
     std::vector<Matrix3d> temp;
 
     // Check if we want to draw it
@@ -85,16 +85,16 @@ std::vector<Matrix3d> BaseObject::line_cohen_sutherland(int i){
         double x = 0, y = 0 ;
 
         // Check first point
-        if (loc_01 & usinged int(8)) {           // point is above the clip rectangle
+        if (loc_1 &  int(8)) {           // point is above the clip rectangle
             x = x1 + (x2 - x1) * (ymax - y1) / (y2 - y1);
             y = ymax;
-        } else if (outcodeOut & usinged int(4)) { // point is below the clip rectangle
+        } else if (loc_1 &  int(4)) { // point is below the clip rectangle
             x = x1 + (x2 - x1) * (ymin - y1) / (y2 - y1);
             y = ymin;
-        } else if (outcodeOut & unsigned int(2)) {  // point is to the right of clip rectangle
+        } else if (loc_1 &  int(2)) {  // point is to the right of clip rectangle
             y = y1 + (y2 - y1) * (xmax - x1) / (x2 - x1);
             x = xmax;
-        } else if (outcodeOut & unsigned int(1)) {   // point is to the left of clip rectangle
+        } else if (loc_1 &  int(1)) {   // point is to the left of clip rectangle
             y = y1 + (y2 - y1) * (xmin - x1) / (x2 - x1);
             x = xmin;
         }
@@ -108,25 +108,25 @@ std::vector<Matrix3d> BaseObject::line_cohen_sutherland(int i){
         y2 = this->p_w_norm[i].get_Y();
 
         // Clipp second point
-        if (loc_01 & usinged int(8)) {           // point is above the clip rectangle
+        if (loc_2 &  int(8)) {           // point is above the clip rectangle
             x = x1 + (x2 - x1) * (ymax - y1) / (y2 - y1);
             y = ymax;
         }
-        else if (outcodeOut & usinged int(4)) { // point is below the clip rectangle
+        else if (loc_2 &  int(4)) { // point is below the clip rectangle
             x = x1 + (x2 - x1) * (ymin - y1) / (y2 - y1);
             y = ymin;
-        } else if (outcodeOut & unsigned int(2)) {  // point is to the right of clip rectangle
+        } else if (loc_2 &  int(2)) {  // point is to the right of clip rectangle
             y = y1 + (y2 - y1) * (xmax - x1) / (x2 - x1);
             x = xmax;
-        } else if (outcodeOut & unsigned int(1)) {   // point is to the left of clip rectangle
+        } else if (loc_2 &  int(1)) {   // point is to the left of clip rectangle
             y = y1 + (y2 - y1) * (xmin - x1) / (x2 - x1);
             x = xmin;
         }
-     temp.push_back(Matrix3d(x,y));
+        temp.push_back(Matrix3d(x,y));
     }
-return temp;
+    return temp;
 }
-*/
+
 std::vector<Matrix3d> BaseObject::line_clipp_Lian_Barsky(Matrix3d pos1 , Matrix3d pos2)
 {
 
@@ -210,4 +210,137 @@ std::vector<Matrix3d> BaseObject::line_clipp_Lian_Barsky(Matrix3d pos1 , Matrix3
     }
 }
 
+void BaseObject::polygon_clipp_Suther_Hodgeman()
+{
+
+    std::vector<Matrix3d> final_Pos, temp;
+    final_Pos = this->p_w_norm;
+    double x_1, x_2, y_1,y_2, m, var_temp;
+
+
+    // Left side,  x_i  >= -1
+    for(int i = 0 ; i < final_Pos.size(); i++)
+    {
+        // check point for inside or outsied
+        x_1 = final_Pos[i].get_X();
+        x_2 = final_Pos[i+1].get_X();
+        y_1 = final_Pos[i].get_X();
+        y_2 = final_Pos[i+1].get_X();
+        m = (y_2 - y_1)/(x_2 - x_1);
+
+        if( (x_1 < -1 ) && (- 1 <= x_2) ) // Line goes from outside to inside
+        {
+            // Calculate intersection
+            var_temp = m* (-1 - x_1) + y_1;
+            temp.push_back(Matrix3d(-1,var_temp));
+            temp.push_back(Matrix3d(x_2,y_2));
+        }
+        else  if( (-1 <= x_1) && ( -1 > x_2 )) // Line goes from inside to outside
+        {
+            var_temp = m* (-1 - x_1) + y_1;
+            temp.push_back(Matrix3d(-1,var_temp));
+        }
+        else  if(( x_1 >= -1) && (x_2 >= -1)) // Line is completly inside
+        {
+            temp.push_back(final_Pos[i]);
+            temp.push_back(final_Pos[i+1]);
+        }
+        else {}
+    }
+    final_Pos = temp;
+
+    // Rigth side,  x_i  <= 1
+    for(int i = 0 ; i < final_Pos.size(); i++)
+    {
+        // check point for inside or outsied
+        x_1 = final_Pos[i].get_X();
+        x_2 = final_Pos[i+1].get_X();
+        y_1 = final_Pos[i].get_X();
+        y_2 = final_Pos[i+1].get_X();
+        m = (y_2 - y_1)/(x_2 - x_1);
+
+        if( (x_1 > 1 ) && (1 >= x_2) ) // Line goes from outside to inside
+        {
+            // Calculate intersection
+            var_temp = m* (1 - x_1) + y_1;
+            temp.push_back(Matrix3d(1,var_temp));
+            temp.push_back(Matrix3d(x_2,y_2));
+        }
+        else  if( (1 >= x_1) && ( 1 < x_2 )) // Line goes from inside to outside
+        {
+            var_temp = m* (1 - x_1) + y_1;
+            temp.push_back(Matrix3d(-1,var_temp));
+        }
+        else  if(( x_1 <= 1) && (x_2 <= 1)) // Line is completly inside
+        {
+            temp.push_back(final_Pos[i]);
+            temp.push_back(final_Pos[i+1]);
+        }
+        else {}
+    }
+
+    final_Pos = temp;
+
+    // Bottom: y_i >= -1
+    for(int i = 0 ; i < final_Pos.size(); i++)
+    {
+        // check point for inside or outsied
+        x_1 = final_Pos[i].get_X();
+        x_2 = final_Pos[i+1].get_X();
+        y_1 = final_Pos[i].get_X();
+        y_2 = final_Pos[i+1].get_X();
+        m = (y_2 - y_1)/(x_2 - x_1);
+
+        if( (y_1 < -1 ) && (- 1 <= y_2) ) // Line goes from outside to inside
+        {
+            // Calculate intersection
+            var_temp  = x_1 + 1/m * ((-1) - y_1);
+            temp.push_back(Matrix3d(var_temp,-1));
+            temp.push_back(Matrix3d(x_2,y_2));
+        }
+        else  if( (-1 <= y_1) && ( -1 > y_2 )) // Line goes from inside to outside
+        {
+            var_temp  = x_1 + 1/m * ((-1) - y_1);
+            temp.push_back(Matrix3d(var_temp,-1));
+        }
+        else  if(( y_1 >= -1) && (y_2 >= -1)) // Line is completly inside
+        {
+            temp.push_back(final_Pos[i]);
+            temp.push_back(final_Pos[i+1]);
+        }
+        else {}
+    }
+    final_Pos = temp;
+
+    // Top side,  y_i  <= 1
+    for(int i = 0 ; i < final_Pos.size(); i++)
+    {
+        // check point for inside or outsied
+        x_1 = final_Pos[i].get_X();
+        x_2 = final_Pos[i+1].get_X();
+        y_1 = final_Pos[i].get_X();
+        y_2 = final_Pos[i+1].get_X();
+        m = (y_2 - y_1)/(x_2 - x_1);
+
+        if( (y_1 > 1 ) && (1 >= x_2) ) // Line goes from outside to inside
+        {
+            var_temp  = x_1 + 1/m * ((1) - y_1);
+            temp.push_back(Matrix3d(1,var_temp));
+            temp.push_back(Matrix3d(x_2,y_2));
+        }
+        else  if( (1 >= y_1) && ( 1 < y_2 )) // Line goes from inside to outside
+        {
+            var_temp  = x_1 + 1/m * ((1) - y_1);
+            temp.push_back(Matrix3d(1,var_temp));
+        }
+        else  if(( y_1 <= 1) && (y_2 <= 1)) // Line is completly inside
+        {
+            temp.push_back(final_Pos[i]);
+            temp.push_back(final_Pos[i+1]);
+        }
+        else {}
+    }
+    this->p_clipp = temp;
+
+}
 

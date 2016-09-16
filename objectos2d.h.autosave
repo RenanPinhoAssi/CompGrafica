@@ -34,7 +34,7 @@ public:
     int listSize;
 
     std::vector<Matrix3d> p_i;                                           // Postion given in initial frame
-    std::vector<Matrix3d> p_w_norm;                                          //position is given in window frame
+    std::vector<Matrix3d> p_w_norm;                            //position is given in window frame
     std::vector<Matrix3d> p_clipp;
     std::vector<Matrix3d> p_vp;                                        // potion given in window fram and clipped
 

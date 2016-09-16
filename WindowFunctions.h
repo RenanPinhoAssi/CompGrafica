@@ -765,9 +765,6 @@ static void trans_obj(GtkWidget *widget, DisplayFile *pointer)
 
 }
 
-
-
-
 void draw_all(GtkWidget *widget, DisplayFile *pointer )
 {
     clear_surface();
@@ -825,8 +822,7 @@ void draw_all(GtkWidget *widget, DisplayFile *pointer )
         else
         {}
 
-        cairo_set_source_rgb(cr,1,0,0);
-        cairo_rectangle(cr, 10,10,580,580);
+
         // Drawing in the viewport area
         gtk_widget_queue_draw_area (widget, pointer->x_vp_min, pointer->y_vp_min,pointer->x_vp_max , pointer->y_vp_max);
     }
